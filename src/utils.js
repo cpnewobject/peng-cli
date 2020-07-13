@@ -12,10 +12,8 @@ function getPackageVersion() {
 }
 
 function logPackageVersion() {
-  const msg = `zero-cli version: ${getPackageVersion()}`;
-  console.log();
+  const msg = `peng-cli version: ${getPackageVersion()}`;
   console.log(msg);
-  console.log();
 }
 exports.logPackageVersion = logPackageVersion;
 

@@ -1,6 +1,6 @@
 {
   "name": "chenpeng-cli",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "description": "A cli for init project",
   "bin": {
     "begin": "bin/begin"
@@ -15,6 +15,9 @@
   },
   "author": "chenpeng",
   "license": "ISC",
+  "keywords": [
+    "cli"
+  ],
   "bugs": {
     "url": "https://github.com/cpnewobject/peng-cli/issues"
   },

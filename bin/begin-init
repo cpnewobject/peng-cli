@@ -13,6 +13,8 @@ const args = program.args;
 
 const projectName = args[0] || name;
 
+// console.log(projectName);
+
 const project = new Project({
   projectName,
   description

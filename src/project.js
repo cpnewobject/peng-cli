@@ -1,15 +1,21 @@
-  
 const inquirer = require('inquirer');
 const fse = require('fs-extra');
 const download = require('download-git-repo');
-const { TEMPLATE_GIT_REPO, INJECT_FILES } = require('./constants');
+const {
+    TEMPLATE_GIT_REPO,
+    INJECT_FILES
+} = require('./constants');
 const chalk = require('chalk');
 const ora = require('ora');
 const path = require('path');
 const memFs = require('mem-fs');
 const editor = require('mem-fs-editor');
-const { getDirFileName } = require('./utils');
-const { exec } = require('child_process');
+const {
+    getDirFileName
+} = require('./utils');
+const {
+    exec
+} = require('child_process');
 
 function Project(options) {
     this.config = Object.assign({
@@ -20,7 +26,7 @@ function Project(options) {
     this.memFsEditor = editor.create(store);
 }
 
-Project.prototype.create = function() {
+Project.prototype.create = function () {
     this.inquire()
         .then((answer) => {
             this.config = Object.assign(this.config, answer);
@@ -28,9 +34,12 @@ Project.prototype.create = function() {
         });
 };
 
-Project.prototype.inquire = function() {
+Project.prototype.inquire = function () {
     const prompts = [];
-    const { projectName, description } = this.config;
+    const {
+        projectName,
+        description
+    } = this.config;
     if (typeof projectName !== 'string') {
         prompts.push({
             type: 'input',
@@ -38,36 +47,36 @@ Project.prototype.inquire = function() {
             message: '请输入项目名：',
             validate(input) {
                 if (!input) {
-                return '项目名不能为空';
+                    return '项目名不能为空';
                 }
                 if (fse.existsSync(input)) {
-                return '当前目录已存在同名项目，请更换项目名';
+                    return '当前目录已存在同名项目，请更换项目名';
                 }
                 return true;
             }
-        });    
+        });
     } else if (fse.existsSync(projectName)) {
         prompts.push({
-        type: 'input',
-        name: 'projectName',
-        message: '当前目录已存在同名项目，请更换项目名',
-        validate(input) {
-            if (!input) {
-            return '项目名不能为空';
+            type: 'input',
+            name: 'projectName',
+            message: '当前目录已存在同名项目，请更换项目名',
+            validate(input) {
+                if (!input) {
+                    return '项目名不能为空';
+                }
+                if (fse.existsSync(input)) {
+                    return '当前目录已存在同名项目，请更换项目名';
+                }
+                return true;
             }
-            if (fse.existsSync(input)) {
-            return '当前目录已存在同名项目，请更换项目名';
-            }
-            return true;
-        }
         });
     }
 
     if (typeof description !== 'string') {
         prompts.push({
-        type: 'input',
-        name: 'description',
-        message: '请输入项目描述'
+            type: 'input',
+            name: 'description',
+            message: '请输入项目描述'
         });
     }
 
@@ -80,7 +89,8 @@ Project.prototype.inquire = function() {
  * @param {string} dest 目标文件路径
  * @param {object} data 替换文本字段
  */
-Project.prototype.injectTemplate = function(source, dest, data) {
+Project.prototype.injectTemplate = function (source, dest, data) {
+    // console.log(source,dest,data);
     this.memFsEditor.copyTpl(
         source,
         dest,
@@ -88,15 +98,20 @@ Project.prototype.injectTemplate = function(source, dest, data) {
     );
 }
 
-Project.prototype.generate = function() {
-    const { projectName, description } = this.config;
+Project.prototype.generate = function () {
+    const {
+        projectName,
+        description
+    } = this.config;
     const projectPath = path.join(process.cwd(), projectName);
     const downloadPath = path.join(projectPath, '__download__');
 
     const downloadSpinner = ora('正在下载模板，请稍等...');
     downloadSpinner.start();
     // 下载git repo
-    download(TEMPLATE_GIT_REPO, downloadPath, { clone: true }, (err) => {
+    download(TEMPLATE_GIT_REPO, downloadPath, {
+        clone: true
+    }, (err) => {
         if (err) {
             downloadSpinner.color = 'red';
             downloadSpinner.fail(err.message);
@@ -107,7 +122,6 @@ Project.prototype.generate = function() {
         downloadSpinner.succeed('下载成功');
 
         // 复制文件
-        console.log();
         const copyFiles = getDirFileName(downloadPath);
 
         copyFiles.forEach((file) => {
@@ -115,7 +129,10 @@ Project.prototype.generate = function() {
             console.log(`${chalk.green('✔ ')}${chalk.grey(`创建: ${projectName}/${file}`)}`);
         });
 
+        // console.log(INJECT_FILES);
+
         INJECT_FILES.forEach((file) => {
+            // console.log(file);
             this.injectTemplate(path.join(downloadPath, file), path.join(projectName, file), {
                 projectName,
                 description
@@ -123,16 +140,16 @@ Project.prototype.generate = function() {
         });
 
         this.memFsEditor.commit(() => {
-            INJECT_FILES.forEach((file) => {
-                console.log(`${chalk.green('✔ ')}${chalk.grey(`创建: ${projectName}/${file}`)}`);
-            })
+        //     INJECT_FILES.forEach((file) => {
+        //         console.log(`${chalk.green('✔ ')}${chalk.grey(`创建: ${projectName}/${file}`)}`);
+        //     })
 
             fse.remove(downloadPath);
 
             process.chdir(projectPath);
 
             // git 初始化
-            console.log();
+            // console.log();
             const gitInitSpinner = ora(`cd ${chalk.green.bold(projectName)}目录, 执行 ${chalk.green.bold('git init')}`);
             gitInitSpinner.start();
 
@@ -147,8 +164,8 @@ Project.prototype.generate = function() {
                 }
 
                 // 安装依赖
-                console.log();
-                const installSpinner = ora(`安装项目依赖 ${chalk.green.bold('npm install')}, 请稍后...`);
+                // console.log();
+                const installSpinner = ora(`安装项目依赖 ${chalk.green.bold('cnpm install')}, 请稍后...`);
                 installSpinner.start();
                 exec('cnpm install', (error, stdout, stderr) => {
                     if (error) {
@@ -159,10 +176,8 @@ Project.prototype.generate = function() {
                         installSpinner.color = 'green';
                         installSpinner.succeed('安装依赖成功');
                         console.log(`${stderr}${stdout}`);
-
-                        console.log();
                         console.log(chalk.green('创建项目成功！'));
-                        console.log(chalk.green('Let\'s Coding吧！嘿嘿😝'));
+                        console.log(chalk.green('Let\'s Coding！😝'));
                     }
                 })
             })
