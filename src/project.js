@@ -167,6 +167,7 @@ Project.prototype.generate = function () {
                 // console.log();
                 const installSpinner = ora(`安装项目依赖 ${chalk.green.bold('cnpm install')}, 请稍后...`);
                 installSpinner.start();
+
                 exec('cnpm install', (error, stdout, stderr) => {
                     if (error) {
                         installSpinner.color = 'red';

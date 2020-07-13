@@ -1,9 +1,9 @@
 {
   "name": "chenpeng-cli",
-  "version": "0.0.5",
+  "version": "0.0.8",
   "description": "A cli for init project",
   "bin": {
-    "peng": "bin/begin"
+    "peng": "bin/peng"
   },
   "main": "index.js",
   "scripts": {
